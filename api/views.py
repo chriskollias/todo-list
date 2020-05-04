@@ -11,27 +11,64 @@ class TodoList(APIView):
         todos = Todo.objects.all()
 
         # Serialize them into JSON
-        todo_json = TodoSerializer(todos, many=True)
+        serializer = TodoSerializer(todos, many=True)
 
-        return Response(todo_json.data)
+        return Response(serializer.data, status=200)
 
     def post(self, request):
 
         # this will allow you to convert from JSON into a todo object
-        todo = TodoSerializer(data=request.data)
+        serializer = TodoSerializer(data=request.data)
 
         # if it's a valid Todo model, save it
-        if todo.is_valid():
-            todo_obj = todo.save()      # can't do commit=False here because its a serializer
+        if serializer.is_valid():
+            todo_obj = serializer.save()      # can't do commit=False here because its a serializer
             todo_obj.completed = False
-            todo_obj.url = reverse('single-todo', args={'todo_id': todo_obj.id})
+            todo_obj.url = reverse('single-todo', args=[todo_obj.id], request=request)
             todo_obj.save()
-        # serialize the data into JSON and return it
-        return Response(todo.data)
+            # serialize the data into JSON and return it
+            return Response(serializer.data, status=201)
+        # if not valid, you want to return status code 400 for bad request
+        return Response(None, status=400)
 
     def delete(self, request):
         Todo.objects.all().delete()
-        return Response(None)
+        return Response(None, status=204)
 
 class TodoOne(APIView):
-    pass
+    def get(self, request, todo_id):
+        try:
+            todo = Todo.objects.get(pk=todo_id)
+
+            # serialize the todo into JSON
+            serializer = TodoSerializer(todo)
+
+            # Return the JSON data
+            return Response(serializer.data, status=200)
+        except Todo.DoesNotExist:
+            # if not valid, you want to return status code 400 for bad request
+            return Response(None, status=400)
+
+    # patch is a request for editing an existing object
+    def patch(self, request, todo_id):
+        try:
+            todo = Todo.objects.get(pk=todo_id)
+
+            # partial means we may be working with partial data (e.g. missing fields), so we just update what fields we
+            # are given. Also we pass it data since we are receiving data, like as in a post request
+            serializer = TodoSerializer(data=request.data, instance=todo, partial=True)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(None, status=400)
+        except Todo.DoesNotExist:
+            return Response(None, status=400)
+
+    def delete(self, request, todo_id):
+        try:
+            todo = Todo.objects.get(pk=todo_id)
+            todo.delete()
+            return Response(None, status=204)
+        except Todo.DoesNotExist:
+            return Response(None, status=400)
