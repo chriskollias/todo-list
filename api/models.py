@@ -6,3 +6,6 @@ class Todo(models.Model):
     completed = models.BooleanField(null=True, default=None)
     url = models.CharField(max_length=500, null=True, default=None)
     order = models.IntegerField(null=True, default=None)
+
+    def __str__(self):
+        return f'{self.title} - Completed: {self.completed}'
