@@ -57,9 +57,14 @@ function deleteCheck(event) {
     const item = event.target;
     
     //check the first item in the target's classList
-    if(item.classList[0] === "trash-btn"){
+    if(item.classList[0] === "trash-btn" || item.classList[1] === "fa-trash"){
         //get the parent element of the item
-        const todoDiv = item.parentElement;
+        let todoDiv = item.parentElement;
+                
+        //make sure we are getting the outer div as the parent, not the button
+        if(todoDiv.tagName.toLowerCase() === "button"){
+            todoDiv = todoDiv.parentElement;
+        }
         
         //add transition effect
         todoDiv.classList.add('fall');
@@ -69,11 +74,16 @@ function deleteCheck(event) {
         });
     }
             
-    if(item.classList[0] === "complete-btn"){
-        const todo = item.parentElement;
+    if(item.classList[0] === "complete-btn" || item.classList[1] === "fa-check"){
+        let todoDiv = item.parentElement;
+        
+        //make sure we are getting the outer div as the parent, not the button
+        if(todoDiv.tagName.toLowerCase() === "button"){
+            todoDiv = todoDiv.parentElement;
+        }
         
         //toggles (on/off) the completed class on that element
-        todo.classList.toggle('completed');
+        todoDiv.classList.toggle('completed');
        }
 }
 
