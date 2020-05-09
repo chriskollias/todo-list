@@ -12,7 +12,7 @@ filterOption.addEventListener('click', filterTodos);
 document.addEventListener('DOMContentLoaded', loadTodos);
 
 //Backend API endpoint
-const url = 'http://127.0.0.1:8000/';
+const URL = 'http://127.0.0.1:8000/';
 
 //Functions
 function addTodo(event) {
@@ -53,6 +53,9 @@ function addTodo(event) {
     
     //clear input box for todo creation
     todoInput.value = "";
+
+    //save the new todo to the backend database
+    saveTodo(todoLi.innerText, todoDiv);
 }
 
 function deleteCheck(event) {
@@ -68,12 +71,15 @@ function deleteCheck(event) {
         if(todoDiv.tagName.toLowerCase() === "button"){
             todoDiv = todoDiv.parentElement;
         }
-        
+
+        const todo_id = todoDiv.id;
+
         //add transition effect
         todoDiv.classList.add('fall');
         //callback function for when animation finishes
         todoDiv.addEventListener('transitionend', function(){
             todoDiv.remove();
+            deleteTodo(todo_id);
         });
     }
             
@@ -120,8 +126,28 @@ function filterTodos(event) {
     });
 }
 
-//save a todo to the backend database
-function saveTodo(){
+//save a new todo to the backend database
+function saveTodo(title, todoDiv){
+    const Http = new XMLHttpRequest();
+    Http.open('POST', URL);
+    let data = {
+        "title" : title,
+        "completed": false
+    };
+
+    Http.setRequestHeader('Content-Type', 'application/json');
+
+    data = JSON.stringify(data);
+
+    Http.onload = (response) => {
+        const response_data = JSON.parse(response['target']['response']);
+
+        todoDiv.setAttribute('id', response_data.id );
+    }
+
+    Http.send(data);
+
+// remember to get the ID back and use that for the id attribute of the todo in the dom
 
 
 }
@@ -129,21 +155,18 @@ function saveTodo(){
 //load todos from the backend database
 function loadTodos(){
     const Http = new XMLHttpRequest();
-    Http.open('GET', url);
-
+    Http.open('GET', URL);
 
     // callback for when we receive response
     Http.onload = () => {
-        console.log(Http.responseText);
         responseData = JSON.parse(Http.responseText);
-        console.log('Respone data in JSON:');
-        console.log(responseData[0]);
 
         // add each todo in the response to our list
         responseData.forEach(todo => {
 
             const todoDiv = document.createElement('div');
             todoDiv.classList.add('todo');
+            todoDiv.setAttribute('id', todo['id']);
 
             //Create <li> that will be placed inside of the new div
             const todoLi = document.createElement('li');
@@ -179,11 +202,25 @@ function loadTodos(){
             }
         })
     }
-
     Http.send();
 }
 
 //delete a todo from the backend database
-function deleteTodo(){
-    
+function deleteTodo(todo_id){
+    const Http = new XMLHttpRequest()
+    const delete_url = URL + todo_id + '/';
+    Http.open('DELETE', delete_url);
+    /*
+    Http.onload = () => {
+        console.log('deleted');
+    }
+    */
+    Http.send();
+
+}
+
+//update an existing todo in the backend database
+function updateTodo(){
+
+
 }
