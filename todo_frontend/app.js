@@ -18,39 +18,43 @@ const URL = 'http://127.0.0.1:8000/';
 function addTodo(event) {
     //prevent form from submitting (which means refreshing on click)
     event.preventDefault();
-    
+
+    if (todoInput.value.trim() == ''){
+        return;
+    }
+
     //create a new ToDo div for this new Todo
     const todoDiv = document.createElement('div');
     todoDiv.classList.add('todo');
-    
+
     //Create <li> that will be placed inside of the new div
     const todoLi = document.createElement('li');
     todoLi.classList.add('todo-item');
 
     //place a value inside of the new <li>
     todoLi.innerText = todoInput.value;
-    
+
     //actually place the <li> inside of the new div
     todoDiv.appendChild(todoLi);
-    
+
     //create checkmark button
     const completedButton = document.createElement('button');
-    
+
     //insert HTML inside of the button element we just created, as opposed to text
     completedButton.innerHTML = '<i class="fas fa-check"></i>';
-    
+
     completedButton.classList.add("complete-btn");
     todoDiv.appendChild(completedButton);
-    
+
     //create trash button
     const trashButton = document.createElement('button');
     trashButton.innerHTML = '<i class="fas fa-trash"></i>';
     trashButton.classList.add("trash-btn");
     todoDiv.appendChild(trashButton);
-    
+
     //finally append the new div to the todo list
     todoList.appendChild(todoDiv);
-    
+
     //clear input box for todo creation
     todoInput.value = "";
 
