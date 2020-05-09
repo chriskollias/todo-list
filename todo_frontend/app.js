@@ -93,6 +93,7 @@ function deleteCheck(event) {
         
         //toggles (on/off) the completed class on that element
         todoDiv.classList.toggle('completed');
+        updateCompletion(todoDiv.id, todoDiv.classList.contains('completed'));
        }
 }
 
@@ -149,8 +150,8 @@ function saveTodo(title, todoDiv){
 
 // remember to get the ID back and use that for the id attribute of the todo in the dom
 
-
 }
+
 
 //load todos from the backend database
 function loadTodos(){
@@ -207,7 +208,7 @@ function loadTodos(){
 
 //delete a todo from the backend database
 function deleteTodo(todo_id){
-    const Http = new XMLHttpRequest()
+    const Http = new XMLHttpRequest();
     const delete_url = URL + todo_id + '/';
     Http.open('DELETE', delete_url);
     /*
@@ -219,8 +220,23 @@ function deleteTodo(todo_id){
 
 }
 
-//update an existing todo in the backend database
-function updateTodo(){
+//update completion status for an existing todo in the backend database
+function updateCompletion(todo_id, completion_status){
+    const Http = new XMLHttpRequest();
+    const update_url = URL + todo_id + '/';
+    Http.open('PATCH', update_url);
+    Http.setRequestHeader('Content-Type', 'application/json');
 
+    let data = {
+        "completed":  completion_status
+    };
 
+    data = JSON.stringify(data);
+
+    /*
+    Http.onload = () => {
+        console.log('updating');
+    }
+    */
+    Http.send(data);
 }

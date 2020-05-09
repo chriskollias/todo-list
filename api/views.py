@@ -16,7 +16,6 @@ class TodoList(APIView):
         return Response(serializer.data, status=200)
 
     def post(self, request):
-        print('full post requestL', request.data)
         # this will allow you to convert from JSON into a todo object
         serializer = TodoSerializer(data=request.data)
 
